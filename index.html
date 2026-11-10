@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>협상 테이블</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#eef2f0; --surface:#ffffff; --surface-2:#f6f8f7; --ink:#16201c; --muted:#5b6964; --line:#d5ddd9;
+  --accent:#0d6a5a; --accent-ink:#ffffff; --accent-soft:#dcefe9;
+  --a:#3550c4; --a-soft:#e5e9fb; --b:#b85a14; --b-soft:#fbeadb;
+  --danger:#b4232f; --danger-soft:#fbe3e5;
+  --display:"Do Hyeon","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0f1513; --surface:#18201d; --surface-2:#1d2622; --ink:#e4ebe8; --muted:#97a59f; --line:#2b3632;
+  --accent:#3dbba2; --accent-ink:#06201a; --accent-soft:#163a32;
+  --a:#91a3ff; --a-soft:#20284a; --b:#f1a462; --b-soft:#3a2716;
+  --danger:#ff7b84; --danger-soft:#3f1a1e; color-scheme:dark}}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+.muted{color:var(--muted)}
+.label{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.small{padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input[type=text],input[type=password],textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 11px}
+textarea{resize:vertical;min-height:72px;line-height:1.5}
+.banner{margin:10px 0 0;padding:9px 12px;border-radius:8px;background:var(--danger-soft);color:var(--danger);font-size:14px}
+.banner.info{background:var(--accent-soft);color:var(--accent)}
+
+#login{align-items:center;justify-content:center;padding-block:32px}
+.login-card{width:100%;max-width:420px;display:flex;flex-direction:column;gap:22px}
+.brand{display:flex;flex-direction:column;gap:6px}
+.brand h1{font-size:44px;line-height:1.1}
+.brand h1 span.a{color:var(--a)} .brand h1 span.b{color:var(--b)}
+.tabs{display:flex;border-bottom:1px solid var(--line);gap:4px}
+.tab{border:0;background:none;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.form{display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:13px;font-weight:600}
+.err{color:var(--danger);font-size:13px;min-height:1.2em}
+
+.topbar{display:flex;align-items:center;gap:12px;padding-block:12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar h1{font-size:24px}
+.topbar .grow{flex:1;min-width:0}
+.who{font-size:14px;color:var(--muted)}
+.who b{color:var(--ink);font-weight:600}
+
+.topics-body{flex:1;overflow:auto;padding-block:20px 32px}
+.intro{max-width:62ch;margin-bottom:18px}
+.intro h2{font-size:28px;margin-bottom:4px}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.topic{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.topic h3{font-size:21px}
+.topic p{margin:0;color:var(--muted);font-size:14px}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.side-btn{border:1.5px solid;border-radius:10px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.side-btn.a{border-color:var(--a);color:var(--a)} .side-btn.a:hover{background:var(--a-soft)}
+.side-btn.b{border-color:var(--b);color:var(--b)} .side-btn.b:hover{background:var(--b-soft)}
+.side-btn .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.side-btn strong{font-weight:700;font-size:14px}
+.empty{padding:28px;border:1px dashed var(--line);border-radius:12px;text-align:center;color:var(--muted)}
+
+.room{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;padding-block:14px}
+.chat{display:flex;flex-direction:column;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.chat-head{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.chat-head h2{font-size:22px}
+.roster{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.chip.a{background:var(--a-soft);color:var(--a)} .chip.b{background:var(--b-soft);color:var(--b)}
+.log{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:78%;display:flex;flex-direction:column;gap:3px}
+.msg .meta{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:baseline}
+.msg .meta b{font-weight:600}
+.msg .bubble{padding:8px 12px;border-radius:12px;white-space:pre-wrap;word-break:break-word;border:1px solid transparent}
+.msg.a .bubble{background:var(--a-soft)} .msg.a .meta b{color:var(--a)}
+.msg.b .bubble{background:var(--b-soft)} .msg.b .meta b{color:var(--b)}
+.msg.mine{align-self:flex-end;align-items:flex-end}
+.msg.t{align-self:center;max-width:90%;align-items:center}
+.msg.t .bubble{background:var(--surface);border-color:var(--accent);color:var(--ink)}
+.msg.t .meta b{color:var(--accent)}
+.log .note{align-self:center;font-size:13px;color:var(--muted);text-align:center;padding:24px 8px;max-width:40ch}
+.composer{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);align-items:flex-end}
+.composer textarea{min-height:44px;max-height:140px;resize:none}
+.side-switch{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}
+.side-switch button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:13px;font-weight:600}
+.side-switch button.on.a{border-color:var(--a);background:var(--a-soft);color:var(--a)}
+.side-switch button.on.b{border-color:var(--b);background:var(--b-soft);color:var(--b)}
+
+.panel{display:flex;flex-direction:column;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.panel .tabs{padding:0 10px}
+.sheet{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pair .col-a label{color:var(--a)} .pair .col-b label{color:var(--b)}
+.save-state{font-size:12px;color:var(--muted);padding:6px 14px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+
+.mobile-tabs{display:none}
+@media (max-width:900px){
+  .room{grid-template-columns:minmax(0,1fr);padding-block:10px}
+  .mobile-tabs{display:flex}
+  .room[data-view=chat] .panel{display:none}
+  .room[data-view=sheet] .chat{display:none}
+  .msg{max-width:90%}
+}
+
+.t-body{flex:1;min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;padding-block:14px}
+.t-nav{display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0}
+.t-nav button.item{text-align:left;border:1px solid transparent;background:none;border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:2px}
+.t-nav button.item:hover{background:var(--surface)}
+.t-nav button.item[aria-current=true]{background:var(--surface);border-color:var(--line)}
+.t-nav .item .t{font-weight:600;font-size:14px}
+.t-nav .item .s{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-nav hr{border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+.t-main{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.grid-rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.rcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-width:0;height:360px}
+.rcard header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:flex-start}
+.rcard header h3{font-size:19px;flex:1;min-width:0}
+.rcard .stats{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;padding:6px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
+.rcard .log{padding:10px;gap:7px;font-size:14px}
+.rcard .msg{max-width:92%}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;min-height:0;flex:1}
+.detail .chat{min-height:520px;max-height:calc(100vh - 160px)}
+.side-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.box h3{font-size:18px}
+.stu-list{display:flex;flex-direction:column;gap:4px}
+.stu{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--surface-2);text-align:left;width:100%}
+.stu .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--muted)}
+.stu .dot.a{background:var(--a)} .stu .dot.b{background:var(--b)}
+.stu .nm{flex:1;min-width:0;font-size:14px}
+.stu .st{font-size:12px;color:var(--muted)}
+.sheet-view{display:flex;flex-direction:column;gap:10px;font-size:14px;margin:0}
+.sheet-view dt{font-size:12px;font-weight:600;color:var(--muted)}
+.sheet-view dd{margin:2px 0 0;white-space:pre-wrap;word-break:break-word}
+.sheet-view dd:empty::after{content:"(비어 있음)";color:var(--muted)}
+.sheet-view h4{margin:6px 0 0;font-family:var(--display);font-weight:400;font-size:17px}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.tm-row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tm-row .full{grid-column:1/-1}
+.tm-row .actions{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+@media (max-width:900px){
+  .t-body{grid-template-columns:minmax(0,1fr)}
+  .t-nav{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
+  .t-nav button.item{flex:none;max-width:220px}
+  .t-nav hr{display:none}
+  .detail{grid-template-columns:minmax(0,1fr)}
+  .tm-row{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){.msg{animation:pop .18s ease-out}@keyframes pop{from{transform:translateY(4px);opacity:.4}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="globalBanner" class="banner" hidden></div>
+
+  <section id="login" class="screen">
+    <div class="login-card">
+      <div class="brand">
+        <span class="label">공통국어 · 협상하기</span>
+        <h1><span class="a">우리 측</span>과 <span class="b">상대측</span>,<br>협상 테이블</h1>
+        <p class="muted" style="margin:0">주제를 고르고 같은 주제를 고른 친구들과 실시간으로 협상해요. 협상 전에는 준비하기, 끝난 뒤에는 평가하기를 작성합니다.</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tabStu" aria-selected="true">학생</button>
+        <button class="tab" role="tab" id="tabTea" aria-selected="false">교사</button>
+      </div>
+      <form id="stuForm" class="form" autocomplete="off">
+        <div class="field"><label for="inNum">학번</label><input type="text" id="inNum" inputmode="numeric" placeholder="예: 10315" maxlength="10"></div>
+        <div class="field"><label for="inName">이름</label><input type="text" id="inName" placeholder="예: 김하늘" maxlength="20"></div>
+        <div class="err" id="stuErr"></div>
+        <button class="btn primary" type="submit">시작하기</button>
+      </form>
+      <form id="teaForm" class="form" autocomplete="off" hidden>
+        <div class="field"><label for="inCode">교사 코드</label><input type="password" id="inCode" placeholder="코드 입력" maxlength="20"></div>
+        <div class="err" id="teaErr"></div>
+        <button class="btn primary" type="submit">교사로 들어가기</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="topics" class="screen" hidden>
+    <div class="topbar">
+      <h1 class="grow">협상 테이블</h1>
+      <span class="who" id="whoTopics"></span>
+      <button class="btn small" id="logoutStu1">나가기</button>
+    </div>
+    <div class="topics-body">
+      <div class="intro">
+        <h2>협상할 주제와 측을 고르세요</h2>
+        <p class="muted" style="margin:0">같은 주제를 고른 친구들이 한 방에 모입니다. 어느 측에 설지 고르면 바로 협상방으로 들어가요. 들어간 뒤에도 측을 바꿀 수 있어요.</p>
+      </div>
+      <div id="topicGrid" class="topic-grid"></div>
+    </div>
+  </section>
+
+  <section id="room" class="screen" hidden>
+    <div class="topbar">
+      <button class="btn small" id="backTopics">← 주제 목록</button>
+      <div class="grow"></div>
+      <span class="who" id="whoRoom"></span>
+    </div>
+    <div class="tabs mobile-tabs" role="tablist">
+      <button class="tab" id="mvChat" aria-selected="true">채팅</button>
+      <button class="tab" id="mvSheet" aria-selected="false">준비 · 평가지</button>
+    </div>
+    <div class="room" id="roomGrid" data-view="chat">
+      <div class="chat">
+        <div class="chat-head">
+          <h2 id="roomTitle"></h2>
+          <div class="side-switch" id="sideSwitch"></div>
+          <div class="roster" id="roomRoster"></div>
+        </div>
+        <div class="log" id="roomLog"></div>
+        <form class="composer" id="roomComposer">
+          <textarea id="roomInput" rows="1" maxlength="500" placeholder="메시지 입력 (Enter 보내기, Shift+Enter 줄바꿈)"></textarea>
+          <button class="btn primary" type="submit">보내기</button>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="tabs" role="tablist">
+          <button class="tab" id="stPrep" aria-selected="true">1. 협상 준비하기</button>
+          <button class="tab" id="stEval" aria-selected="false">2. 협상 평가하기</button>
+        </div>
+        <div class="sheet" id="prepSheet">
+          <p class="muted" style="margin:0;font-size:13px">협상을 시작하기 전에 작성하세요. 선생님이 확인할 수 있어요.</p>
+          <div class="field"><label for="p_ourPos">우리 측 기본 입장</label><textarea id="p_ourPos" data-k="prep.ourPos"></textarea></div>
+          <div class="field"><label for="p_theirPos">상대측 기본 입장</label><textarea id="p_theirPos" data-k="prep.theirPos"></textarea></div>
+          <div class="field"><label for="p_goal">협상 목표</label><textarea id="p_goal" data-k="prep.goal"></textarea></div>
+          <div class="field"><label for="p_concede">양보 가능한 지점</label><textarea id="p_concede" data-k="prep.concede"></textarea></div>
+          <div class="field"><label for="p_expect">예상되는 상대측 요구 사항과 대응 방안</label><textarea id="p_expect" data-k="prep.expect"></textarea></div>
+        </div>
+        <div class="sheet" id="evalSheet" hidden>
+          <p class="muted" style="margin:0;font-size:13px">협상이 끝난 뒤 채팅 내용을 돌아보며 작성하세요.</p>
+          <div>
+            <div class="label" style="margin-bottom:6px">최초 요구 사항</div>
+            <div class="pair">
+              <div class="field col-a"><label for="e_firstOurs">우리 측</label><textarea id="e_firstOurs" data-k="eval.firstOurs"></textarea></div>
+              <div class="field col-b"><label for="e_firstTheirs">상대측</label><textarea id="e_firstTheirs" data-k="eval.firstTheirs"></textarea></div>
+            </div>
+          </div>
+          <div>
+            <div class="label" style="margin-bottom:6px">요구 사항에 대한 검토 의견</div>
+            <div class="pair">
+              <div class="field col-a"><label for="e_reviewOurs">우리 측</label><textarea id="e_reviewOurs" data-k="eval.reviewOurs"></textarea></div>
+              <div class="field col-b"><label for="e_reviewTheirs">상대측</label><textarea id="e_reviewTheirs" data-k="eval.reviewTheirs"></textarea></div>
+            </div>
+          </div>
+          <div class="field"><label for="e_adjusted">조정한 내용</label><textarea id="e_adjusted" data-k="eval.adjusted"></textarea></div>
+          <div class="field"><label for="e_agreed">합의한 내용</label><textarea id="e_agreed" data-k="eval.agreed"></textarea></div>
+          <div class="field"><label for="e_feeling">소감</label><textarea id="e_feeling" data-k="eval.feeling"></textarea></div>
+        </div>
+        <div class="save-state" id="saveState">입력하면 자동으로 저장돼요.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="teacher" class="screen" hidden>
+    <div class="topbar">
+      <h1 class="grow">협상 테이블 · 교사</h1>
+      <span class="who" id="tSummary"></span>
+      <button class="btn small" id="logoutTea">나가기</button>
+    </div>
+    <div class="t-body">
+      <nav class="t-nav" id="tNav"></nav>
+      <main class="t-main" id="tMain"></main>
+    </div>
+  </section>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =========================================================
+   ① Firebase 설정: Firebase 콘솔 > 프로젝트 설정 > 내 앱(웹)에서
+      복사한 firebaseConfig 값을 아래에 붙여 넣으세요.
+   ② 교사 코드는 TEACHER_CODE에서 바꿀 수 있어요.
+   ========================================================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBSKQFX6qdkDTM3w7RMG5642qBpO64023w",
+  authDomain: "negotiate-ad647.firebaseapp.com",
+  projectId: "negotiate-ad647",
+  storageBucket: "negotiate-ad647.firebasestorage.app",
+  messagingSenderId: "110489910400",
+  appId: "1:110489910400:web:cec938157361230fd33a65"
+};
+const TEACHER_CODE = '1234';
+
+(function(){
+const $ = s => document.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const fmtTime = ts => { const d = new Date(ts); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); };
+
+let db = null, dbReady = false;
+let topics = [], members = [], sheets = [];
+let me = store.get('nego.me');
+let cur = store.get('nego.cur');
+let teacher = !!store.get('nego.teacher');
+let msgs = [], unsubMsgs = null;
+let mySheet = null, mySheetNum = null, unsubMySheet = null, sheetDirty = false, saveTimer = null, saving = Promise.resolve();
+const roomMsgs = {}, roomUnsubs = {};
+let tView = { mode: 'all' };
+let editTopics = null;
+
+function show(id){ ['login','topics','room','teacher'].forEach(s => $('#'+s).hidden = s !== id); }
+function banner(text, info){
+  const b = $('#globalBanner');
+  if (!text){ b.hidden = true; return; }
+  b.textContent = text; b.className = 'banner' + (info ? ' info' : ''); b.hidden = false;
+}
+function writeError(e){
+  if (e && e.code === 'permission-denied') banner('저장이 거부됐어요. Firebase 보안 규칙(firestore.rules)을 붙여 넣었는지 확인하세요.');
+  else if (e && e.code === 'resource-exhausted') banner('오늘 사용할 수 있는 무료 사용량을 넘었어요. 내일 다시 시도하세요.');
+  else banner('저장하지 못했어요. 인터넷 연결을 확인하세요.');
+}
+
+/* ---------- 로그인 ---------- */
+function setLoginTab(t){
+  $('#tabStu').setAttribute('aria-selected', t==='stu'); $('#tabTea').setAttribute('aria-selected', t==='tea');
+  $('#stuForm').hidden = t !== 'stu'; $('#teaForm').hidden = t !== 'tea';
+}
+$('#tabStu').onclick = () => setLoginTab('stu');
+$('#tabTea').onclick = () => setLoginTab('tea');
+$('#stuForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const num = $('#inNum').value.trim(), name = $('#inName').value.trim();
+  if (!/^[0-9]{3,10}$/.test(num)) { $('#stuErr').textContent = '학번은 숫자로 입력하세요.'; return; }
+  if (!name) { $('#stuErr').textContent = '이름을 입력하세요.'; return; }
+  $('#stuErr').textContent = '';
+  me = { num, name }; store.set('nego.me', me);
+  teacher = false; store.del('nego.teacher');
+  goTopics();
+});
+$('#teaForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if ($('#inCode').value.trim() !== TEACHER_CODE) { $('#teaErr').textContent = '코드가 맞지 않아요.'; return; }
+  $('#teaErr').textContent = ''; $('#inCode').value = '';
+  teacher = true; store.set('nego.teacher', true);
+  goTeacher();
+});
+$('#logoutStu1').onclick = () => {
+  leaveRoom(true);
+  me = null; store.del('nego.me'); store.del('nego.cur');
+  if (unsubMySheet){ unsubMySheet(); unsubMySheet = null; mySheetNum = null; mySheet = null; }
+  show('login');
+};
+$('#logoutTea').onclick = () => { teacher = false; store.del('nego.teacher'); show('login'); setLoginTab('tea'); };
+
+/* ---------- 데이터 연결 ---------- */
+function topicById(id){ return topics.find(t => t.id === id); }
+function sideName(t, s){ return t ? (s === 'b' ? t.sideB : t.sideA) : (s === 'b' ? 'B측' : 'A측'); }
+
+function connect(){
+  if (!window.firebase || !FIREBASE_CONFIG.projectId){
+    banner('아직 Firebase 설정이 없어요. index.html 아래쪽 FIREBASE_CONFIG에 설정값을 붙여 넣어 주세요. (README 참고)');
+    return;
+  }
+  try { firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore(); }
+  catch(e){ banner('Firebase 설정값이 올바르지 않아요. 다시 복사해 붙여 넣어 주세요.'); db = null; return; }
+
+  const loading = setTimeout(() => { if (!dbReady) banner('서버에 연결하는 중이에요. 인터넷 연결을 확인해 주세요.', true); }, 10000);
+  db.doc('config/topics').onSnapshot(s => {
+    if (!s.metadata.fromCache){ dbReady = true; clearTimeout(loading); if ($('#globalBanner').classList.contains('info')) banner(null); }
+    const d = s.exists ? s.data() : null;
+    topics = d && Array.isArray(d.list) ? d.list : [];
+    if (teacher) syncTeacherRooms();
+    renderAll();
+  }, e => { clearTimeout(loading); writeError(e); });
+  db.collection('members').onSnapshot(s => {
+    members = s.docs.map(d => Object.assign({ _id: d.id }, d.data()));
+    renderAll();
+  }, () => {});
+  if (teacher) startTeacherSubs();
+}
+
+function ensureMySheetSub(){
+  if (!db || !me || mySheetNum === me.num) return;
+  if (unsubMySheet) unsubMySheet();
+  mySheetNum = me.num; mySheet = null;
+  unsubMySheet = db.doc('sheets/' + me.num).onSnapshot(s => {
+    const d = s.exists ? s.data() : null;
+    if (!sheetDirty){ mySheet = d ? JSON.parse(JSON.stringify(d)) : null; fillSheet(); }
+  }, () => {});
+}
+
+let teacherSubsOn = false;
+function startTeacherSubs(){
+  if (!db || teacherSubsOn) return;
+  teacherSubsOn = true;
+  db.collection('sheets').onSnapshot(s => {
+    sheets = s.docs.map(d => Object.assign({ _id: d.id }, d.data()));
+    renderTeacher();
+  }, () => {});
+  syncTeacherRooms();
+}
+function syncTeacherRooms(){
+  if (!db || !teacherSubsOn) return;
+  const ids = new Set(topics.map(t => t.id));
+  Object.keys(roomUnsubs).forEach(id => { if (!ids.has(id)){ roomUnsubs[id](); delete roomUnsubs[id]; delete roomMsgs[id]; } });
+  topics.forEach(t => {
+    if (roomUnsubs[t.id]) return;
+    roomMsgs[t.id] = [];
+    roomUnsubs[t.id] = db.collection('rooms/' + t.id + '/msgs').orderBy('ts','desc').limit(300).onSnapshot(s => {
+      roomMsgs[t.id] = s.docs.map(d => Object.assign({ _id: d.id }, d.data())).reverse();
+      renderTeacher();
+    }, () => {});
+  });
+}
+
+function renderAll(){
+  if (!$('#topics').hidden) renderTopics();
+  if (!$('#room').hidden) renderRoomMeta();
+  if (!$('#teacher').hidden) renderTeacher();
+}
+
+/* ---------- 학생: 주제 선택 ---------- */
+function goTopics(){
+  leaveRoom(false);
+  show('topics');
+  ensureMySheetSub();
+  $('#whoTopics').replaceChildren(el('b', null, me.num + ' ' + me.name));
+  renderTopics();
+}
+function renderTopics(){
+  const g = $('#topicGrid'); g.replaceChildren();
+  if (!topics.length){
+    g.append(el('div','empty', dbReady || !db ? '선생님이 아직 협상 주제를 올리지 않았어요. 잠시 기다려 주세요.' : '주제 목록을 불러오는 중…'));
+    return;
+  }
+  topics.forEach(t => {
+    const c = el('article','topic');
+    c.append(el('h3', null, t.title));
+    if (t.desc) c.append(el('p', null, t.desc));
+    const sides = el('div','sides');
+    ['a','b'].forEach(s => {
+      const n = members.filter(m => m.tid === t.id && m.side === s).length;
+      const b = el('button','side-btn ' + s);
+      b.append(el('strong', null, sideName(t, s)), el('span','n', n ? n + '명 참여 중' : '아직 없음'));
+      b.onclick = () => enterRoom(t.id, s);
+      sides.append(b);
+    });
+    c.append(sides);
+    g.append(c);
+  });
+}
+
+/* ---------- 학생: 협상방 ---------- */
+async function enterRoom(tid, side){
+  if (!db){ banner('서버에 연결되지 않아 협상방에 들어갈 수 없어요.'); return; }
+  cur = { tid, side }; store.set('nego.cur', cur);
+  show('room');
+  ensureMySheetSub();
+  setMobileView('chat');
+  msgs = [];
+  renderRoomMeta(); renderLog();
+  if (unsubMsgs) unsubMsgs();
+  unsubMsgs = db.collection('rooms/' + tid + '/msgs').orderBy('ts','desc').limit(300).onSnapshot(s => {
+    msgs = s.docs.map(d => Object.assign({ _id: d.id }, d.data())).reverse();
+    renderLog();
+  }, () => banner('대화를 불러오지 못했어요. 페이지를 새로고침해 주세요.'));
+  fillSheet();
+  for (const m of members.filter(m => m.num === me.num && m.tid !== tid)){
+    try { await db.doc('members/' + m._id).delete(); } catch(e){}
+  }
+  try { await db.doc('members/' + tid + '_' + me.num).set({ tid, num: me.num, name: me.name, side, at: Date.now() }); }
+  catch(e){ writeError(e); }
+}
+async function leaveRoom(removeMember){
+  if (unsubMsgs){ unsubMsgs(); unsubMsgs = null; }
+  const memberPath = cur && me ? 'members/' + cur.tid + '_' + me.num : null;
+  const p = flushSheet();
+  if (removeMember){ cur = null; store.del('nego.cur'); }
+  await p;
+  if (memberPath && db && removeMember){
+    try { await db.doc(memberPath).delete(); } catch(e){}
+  }
+}
+$('#backTopics').onclick = async () => { await leaveRoom(true); goTopics(); };
+
+function renderRoomMeta(){
+  if (!cur) return;
+  const t = topicById(cur.tid);
+  if (!t && dbReady){ leaveRoom(true).then(goTopics); return; }
+  $('#roomTitle').textContent = t ? t.title : '';
+  $('#whoRoom').replaceChildren(el('b', null, me.num + ' ' + me.name), document.createTextNode(' · ' + sideName(t, cur.side)));
+  const sw = $('#sideSwitch'); sw.replaceChildren(el('span','muted','내 측:'));
+  ['a','b'].forEach(s => {
+    const b = el('button', (cur.side === s ? 'on ' : '') + s, sideName(t, s));
+    b.type = 'button';
+    b.onclick = () => switchSide(s);
+    sw.append(b);
+  });
+  const r = $('#roomRoster'); r.replaceChildren();
+  const here = members.filter(m => m.tid === cur.tid).sort((x,y) => String(x.side||'').localeCompare(String(y.side||'')) || String(x.num).localeCompare(String(y.num)));
+  if (!here.length) r.append(el('span','muted','참여자 불러오는 중…'));
+  here.forEach(m => r.append(el('span','chip ' + m.side, m.num + ' ' + m.name)));
+}
+async function switchSide(s){
+  if (!cur || cur.side === s) return;
+  cur.side = s; store.set('nego.cur', cur);
+  renderRoomMeta();
+  try { await db.doc('members/' + cur.tid + '_' + me.num).set({ tid: cur.tid, num: me.num, name: me.name, side: s, at: Date.now() }); }
+  catch(e){ writeError(e); }
+  scheduleSave();
+}
+
+function msgNode(m, myNum, t){
+  const role = m.role === 'teacher' ? 't' : (m.side === 'b' ? 'b' : 'a');
+  const n = el('div','msg ' + role + (myNum && m.role !== 'teacher' && m.num === myNum ? ' mine' : ''));
+  const meta = el('div','meta');
+  if (m.role === 'teacher') meta.append(el('b', null, '선생님'));
+  else meta.append(el('b', null, m.num + ' ' + m.name), el('span', null, sideName(t, m.side)));
+  meta.append(el('span', null, fmtTime(m.ts)));
+  n.append(meta, el('div','bubble', m.text));
+  return n;
+}
+function paintLog(box, list, myNum, t, emptyText){
+  const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  box.replaceChildren();
+  if (!list.length) box.append(el('div','note', emptyText));
+  list.forEach(m => box.append(msgNode(m, myNum, t)));
+  if (nearBottom || box.dataset.init !== '1'){ box.scrollTop = box.scrollHeight; box.dataset.init = '1'; }
+}
+function renderLog(){
+  if (!cur) return;
+  paintLog($('#roomLog'), msgs, me.num, topicById(cur.tid), '아직 대화가 없어요. 준비하기를 먼저 작성한 뒤, 우리 측의 기본 입장을 밝히며 협상을 시작해 보세요.');
+}
+async function sendMsg(input, payloadFn){
+  const text = input.value.trim();
+  if (!text || !db) return;
+  const p = payloadFn(text);
+  input.value = ''; autoGrow(input);
+  try { await db.collection('rooms/' + p.tid + '/msgs').add(p.body); }
+  catch(e){ input.value = text; writeError(e); }
+}
+function autoGrow(t){ t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 140) + 'px'; }
+function wireComposer(form, input, payloadFn){
+  input.addEventListener('input', () => autoGrow(input));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); sendMsg(input, payloadFn); }
+  });
+  form.addEventListener('submit', e => { e.preventDefault(); sendMsg(input, payloadFn); });
+}
+wireComposer($('#roomComposer'), $('#roomInput'), text => ({ tid: cur.tid, body: { num: me.num, name: me.name, side: cur.side, role: 'student', text: text.slice(0,500), ts: Date.now() } }));
+
+function setMobileView(v){
+  $('#roomGrid').dataset.view = v;
+  $('#mvChat').setAttribute('aria-selected', v==='chat'); $('#mvSheet').setAttribute('aria-selected', v==='sheet');
+}
+$('#mvChat').onclick = () => setMobileView('chat');
+$('#mvSheet').onclick = () => setMobileView('sheet');
+function setSheetTab(t){
+  $('#stPrep').setAttribute('aria-selected', t==='prep'); $('#stEval').setAttribute('aria-selected', t==='eval');
+  $('#prepSheet').hidden = t !== 'prep'; $('#evalSheet').hidden = t !== 'eval';
+}
+$('#stPrep').onclick = () => setSheetTab('prep');
+$('#stEval').onclick = () => setSheetTab('eval');
+
+/* ---------- 학생: 준비·평가지 저장 ---------- */
+const sheetFields = Array.from(document.querySelectorAll('textarea[data-k]'));
+function fillSheet(){
+  if (!cur) return;
+  const entry = mySheet && mySheet.topics && mySheet.topics[cur.tid] || {};
+  sheetFields.forEach(f => {
+    if (document.activeElement === f) return;
+    const [g, k] = f.dataset.k.split('.');
+    f.value = (entry[g] && entry[g][k]) || '';
+  });
+}
+function collectEntry(){
+  const entry = { tid: cur.tid, side: cur.side, prep: {}, eval: {}, updatedAt: Date.now() };
+  sheetFields.forEach(f => { const [g,k] = f.dataset.k.split('.'); entry[g][k] = f.value.slice(0, 3000); });
+  return entry;
+}
+function scheduleSave(){
+  if (!cur || !db || !me) return;
+  sheetDirty = true;
+  $('#saveState').textContent = '저장 대기 중…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSheet, 1200);
+}
+function flushSheet(){
+  clearTimeout(saveTimer);
+  if (!sheetDirty || !cur || !db || !me) return saving;
+  const entry = collectEntry();
+  const doc = mySheet ? JSON.parse(JSON.stringify(mySheet)) : { topics: {} };
+  doc.num = me.num; doc.name = me.name; doc.topics = doc.topics || {}; doc.topics[cur.tid] = entry; doc.updatedAt = Date.now();
+  mySheet = doc;
+  const path = 'sheets/' + me.num;
+  saving = saving.then(() => db.doc(path).set(doc)).then(() => {
+    sheetDirty = false; $('#saveState').textContent = '저장됨 · ' + fmtTime(Date.now());
+  }).catch(e => { $('#saveState').textContent = '저장하지 못했어요.'; writeError(e); });
+  return saving;
+}
+sheetFields.forEach(f => f.addEventListener('input', scheduleSave));
+window.addEventListener('pagehide', () => { flushSheet(); });
+
+/* ---------- 교사 ---------- */
+function goTeacher(){ show('teacher'); startTeacherSubs(); renderTeacher(); }
+function sheetFor(tid, num){
+  const s = sheets.find(s => s.num === num && s.topics && s.topics[tid]);
+  return s ? { s, entry: s.topics[tid] } : null;
+}
+function renderTeacher(){
+  if ($('#teacher').hidden) return;
+  const totalMsgs = topics.reduce((a,t) => a + (roomMsgs[t.id] || []).length, 0);
+  $('#tSummary').textContent = '참여 학생 ' + members.length + '명 · 메시지 ' + totalMsgs + '개';
+  const nav = $('#tNav'); nav.replaceChildren();
+  const mk = (title, sub, active, fn) => { const b = el('button','item'); b.append(el('span','t',title)); if (sub) b.append(el('span','s',sub)); b.setAttribute('aria-current', active); b.onclick = fn; nav.append(b); };
+  mk('전체 모니터', topics.length + '개 협상방', tView.mode === 'all', () => { tView = { mode:'all' }; renderTeacher(); });
+  mk('주제 관리', '추가 · 수정 · 삭제', tView.mode === 'manage', () => { tView = { mode:'manage' }; editTopics = null; delete $('#tMain').dataset.manage; renderTeacher(); });
+  nav.append(el('hr'));
+  topics.forEach(t => {
+    const a = members.filter(m => m.tid === t.id && m.side === 'a').length, b = members.filter(m => m.tid === t.id && m.side === 'b').length;
+    mk(t.title, sideName(t,'a') + ' ' + a + ' · ' + sideName(t,'b') + ' ' + b + ' · 메시지 ' + (roomMsgs[t.id]||[]).length, tView.mode === 'room' && tView.tid === t.id, () => { tView = { mode:'room', tid: t.id }; renderTeacher(); });
+  });
+  const main = $('#tMain');
+  if (tView.mode === 'manage'){ if (!main.dataset.manage) renderManage(main); return; }
+  delete main.dataset.manage;
+  if (tView.mode === 'room' && topicById(tView.tid)) renderRoomDetail(main);
+  else renderGrid(main);
+}
+function renderGrid(main){
+  main.replaceChildren();
+  if (!topics.length){
+    const e = el('div','empty'); e.append(document.createTextNode(db ? '아직 협상 주제가 없어요. ' : 'Firebase 설정 후 사용할 수 있어요. '));
+    const b = el('button','btn small primary','주제 추가하기'); b.onclick = () => { tView = { mode:'manage' }; renderTeacher(); };
+    e.append(b); main.append(e); return;
+  }
+  const g = el('div','grid-rooms');
+  topics.forEach(t => {
+    const c = el('article','rcard');
+    const h = el('header'); h.append(el('h3', null, t.title));
+    const open = el('button','btn small','자세히'); open.onclick = () => { tView = { mode:'room', tid: t.id }; renderTeacher(); };
+    h.append(open);
+    const here = members.filter(m => m.tid === t.id);
+    const st = el('div','stats');
+    st.append(el('span', null, sideName(t,'a') + ' ' + here.filter(m=>m.side==='a').length + '명'), el('span', null, sideName(t,'b') + ' ' + here.filter(m=>m.side==='b').length + '명'), el('span', null, '메시지 ' + (roomMsgs[t.id]||[]).length));
+    const log = el('div','log');
+    c.append(h, st, log); g.append(c);
+    paintLog(log, roomMsgs[t.id] || [], null, t, '아직 대화가 없어요.');
+  });
+  main.append(g);
+}
+function renderRoomDetail(main){
+  const t = topicById(tView.tid);
+  let wrap = main.querySelector('.detail');
+  if (!wrap || wrap.dataset.tid !== t.id){
+    main.replaceChildren();
+    wrap = el('div','detail'); wrap.dataset.tid = t.id;
+    const chat = el('div','chat');
+    const head = el('div','chat-head'); head.append(el('h2', null, t.title));
+    if (t.desc) head.append(el('div','muted', t.desc));
+    const roster = el('div','roster'); roster.id = 'tRoster';
+    head.append(roster);
+    const log = el('div','log'); log.id = 'tLog';
+    const form = el('form','composer');
+    const ta = el('textarea'); ta.id = 'tInput'; ta.rows = 1; ta.maxLength = 500; ta.placeholder = '선생님 메시지 (이 방 학생 모두에게 보여요)';
+    const sb = el('button','btn primary','보내기'); sb.type = 'submit';
+    form.append(ta, sb);
+    chat.append(head, log, form);
+    const tid = t.id;
+    wireComposer(form, ta, text => ({ tid, body: { role: 'teacher', name: '선생님', num: '', side: '', text: text.slice(0,500), ts: Date.now() } }));
+    wrap.append(chat, el('div','side-col')); main.append(wrap);
+  }
+  const roster = wrap.querySelector('#tRoster'); roster.replaceChildren();
+  members.filter(m => m.tid === t.id).forEach(m => roster.append(el('span','chip ' + m.side, m.num + ' ' + m.name)));
+  paintLog(wrap.querySelector('#tLog'), roomMsgs[t.id] || [], null, t, '아직 대화가 없어요.');
+
+  const col = el('div','side-col');
+  const box1 = el('div','box'); box1.append(el('h3', null, '학생 준비 · 평가지'));
+  const list = el('div','stu-list');
+  const here = members.filter(m => m.tid === t.id).map(m => Object.assign({}, m));
+  const nums = new Set(here.map(m => m.num));
+  sheets.filter(s => s.topics && s.topics[t.id] && !nums.has(s.num)).forEach(s => here.push({ num: s.num, name: s.name, side: s.topics[t.id].side, left: true }));
+  here.sort((x,y) => String(x.side||'').localeCompare(String(y.side||'')) || String(x.num).localeCompare(String(y.num)));
+  if (!here.length) list.append(el('div','muted','아직 들어온 학생이 없어요.'));
+  here.forEach(m => {
+    const sf = sheetFor(t.id, m.num);
+    const b = el('button','stu'); b.type = 'button';
+    b.append(el('span','dot ' + (m.side||'')), el('span','nm', m.num + ' ' + m.name + (m.left ? ' (나감)' : '')), el('span','st', sf ? '작성 ' + fmtTime(sf.entry.updatedAt) : '미작성'));
+    b.onclick = () => { tView.sheetNum = m.num; renderTeacher(); };
+    list.append(b);
+  });
+  box1.append(list);
+  col.append(box1);
+  if (tView.sheetNum){
+    const sf = sheetFor(t.id, tView.sheetNum);
+    const box2 = el('div','box');
+    const m = here.find(x => x.num === tView.sheetNum);
+    box2.append(el('h3', null, (m ? m.num + ' ' + m.name : tView.sheetNum) + (sf ? ' · ' + sideName(t, sf.entry.side) : '')));
+    if (!sf) box2.append(el('div','muted','아직 작성한 내용이 없어요.'));
+    else {
+      const v = el('dl','sheet-view'); const p = sf.entry.prep || {}, ev = sf.entry.eval || {};
+      const row = (k, val) => { const d = el('div'); d.append(el('dt', null, k), el('dd', null, val || '')); v.append(d); };
+      v.append(el('h4', null, '협상 준비하기'));
+      row('우리 측 기본 입장', p.ourPos); row('상대측 기본 입장', p.theirPos); row('협상 목표', p.goal); row('양보 가능한 지점', p.concede); row('예상되는 상대측 요구 사항과 대응 방안', p.expect);
+      v.append(el('h4', null, '협상 평가하기'));
+      row('최초 요구 사항 · 우리 측', ev.firstOurs); row('최초 요구 사항 · 상대측', ev.firstTheirs);
+      row('검토 의견 · 우리 측', ev.reviewOurs); row('검토 의견 · 상대측', ev.reviewTheirs);
+      row('조정한 내용', ev.adjusted); row('합의한 내용', ev.agreed); row('소감', ev.feeling);
+      box2.append(v);
+    }
+    col.append(box2);
+  }
+  const box3 = el('div','box'); box3.append(el('h3', null, '대화 관리'));
+  const copyBtn = el('button','btn small','대화 내용 복사');
+  copyBtn.onclick = () => {
+    const txt = t.title + '\n' + (roomMsgs[t.id]||[]).map(m => '[' + fmtTime(m.ts) + '] ' + (m.role === 'teacher' ? '선생님' : m.num + ' ' + m.name + '(' + sideName(t,m.side) + ')') + ': ' + m.text).join('\n');
+    navigator.clipboard.writeText(txt).then(() => { copyBtn.textContent = '복사됨'; }, () => { copyBtn.textContent = '복사할 수 없어요'; });
+  };
+  const c = el('div','confirm'); c.append(copyBtn);
+  if (!tView.confirmReset){
+    const r = el('button','btn small danger','대화 모두 지우기'); r.onclick = () => { tView.confirmReset = true; renderTeacher(); }; c.append(r);
+  } else {
+    c.append(el('span', null, '이 방의 메시지 ' + (roomMsgs[t.id]||[]).length + '개를 지울까요? 되돌릴 수 없어요.'));
+    const y = el('button','btn small danger','지우기'); const n = el('button','btn small','취소');
+    n.onclick = () => { tView.confirmReset = false; renderTeacher(); };
+    y.onclick = async () => {
+      y.disabled = true; n.disabled = true; y.textContent = '지우는 중…';
+      for (const m of (roomMsgs[t.id]||[]).slice()){ try { await db.doc('rooms/' + t.id + '/msgs/' + m._id).delete(); } catch(e){} }
+      for (const m of members.filter(m => m.tid === t.id)){ try { await db.doc('members/' + m._id).delete(); } catch(e){} }
+      tView.confirmReset = false; renderTeacher();
+    };
+    c.append(y, n);
+  }
+  box3.append(c, el('div','muted','지우기는 메시지와 참여자 목록을 비웁니다. 학생 준비·평가지는 남아요.'));
+  col.append(box3);
+  wrap.querySelector('.side-col').replaceWith(col);
+}
+
+/* 주제 관리 */
+const blankTopic = () => ({ id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2,5), title: '', desc: '', sideA: '', sideB: '' });
+function renderManage(main){
+  main.dataset.manage = '1';
+  if (!editTopics) editTopics = JSON.parse(JSON.stringify(topics));
+  if (!editTopics.length) editTopics.push(blankTopic());
+  main.replaceChildren();
+  const head = el('div','intro');
+  head.append(el('h2', null, '협상 주제 관리'), el('p','muted','주제마다 서로 입장이 다른 두 측을 정해 주세요. 저장하면 학생 화면에 바로 반영돼요.'));
+  main.append(head);
+  editTopics.forEach((t, i) => {
+    const r = el('div','tm-row');
+    const f = (label, key, cls, area) => {
+      const w = el('div','field' + (cls ? ' ' + cls : ''));
+      const id = 'tm_' + t.id + '_' + key;
+      const lb = el('label', null, label); lb.htmlFor = id;
+      const inp = area ? el('textarea') : el('input'); if (!area) inp.type = 'text';
+      inp.id = id; inp.value = t[key] || ''; if (area) inp.rows = 2;
+      inp.oninput = () => { t[key] = inp.value; };
+      w.append(lb, inp); r.append(w);
+    };
+    f('주제', 'title', 'full'); f('상황 설명', 'desc', 'full', true); f('A측 이름 (예: 학생회)', 'sideA'); f('B측 이름 (예: 학교)', 'sideB');
+    const act = el('div','actions');
+    if (t._confirm){
+      act.append(el('span','muted','이 주제를 삭제할까요?'));
+      const y = el('button','btn small danger','삭제'); y.onclick = () => { editTopics.splice(i,1); renderManage(main); };
+      const n = el('button','btn small','취소'); n.onclick = () => { delete t._confirm; renderManage(main); };
+      act.append(y, n);
+    } else {
+      const d = el('button','btn small danger','삭제'); d.onclick = () => { t._confirm = true; renderManage(main); }; act.append(d);
+    }
+    r.append(act); main.append(r);
+  });
+  const bar = el('div','confirm');
+  const add = el('button','btn','+ 주제 추가'); add.onclick = () => { editTopics.push(blankTopic()); renderManage(main); };
+  const save = el('button','btn primary','저장');
+  const msg = el('span','muted');
+  save.onclick = async () => {
+    const list = editTopics.map(t => ({ id: t.id, title: (t.title||'').trim(), desc: (t.desc||'').trim(), sideA: (t.sideA||'').trim() || 'A측', sideB: (t.sideB||'').trim() || 'B측' })).filter(t => t.title);
+    if (!db){ msg.textContent = 'Firebase에 연결되지 않아 저장할 수 없어요.'; return; }
+    save.disabled = true; msg.textContent = '저장 중…';
+    try { await db.doc('config/topics').set({ list, updatedAt: Date.now() }); editTopics = JSON.parse(JSON.stringify(list)); msg.textContent = '저장했어요. 학생 화면에 반영됐어요.'; }
+    catch(e){ msg.textContent = '저장하지 못했어요.'; writeError(e); }
+    save.disabled = false;
+  };
+  bar.append(add, save, msg);
+  main.append(bar);
+}
+
+/* ---------- 시작 ---------- */
+connect();
+if (teacher) goTeacher();
+else if (me){
+  $('#inNum').value = me.num; $('#inName').value = me.name;
+  if (cur && db) enterRoom(cur.tid, cur.side); else goTopics();
+} else show('login');
+})();
+</script>
+</body>
+</html>
